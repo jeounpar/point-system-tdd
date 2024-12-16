@@ -1,5 +1,5 @@
 import { UserPoint } from './point.model';
-import { CannotUsePoint } from './error';
+import { CannotUsePointError, PointValidateError } from './error';
 
 type UserPointForSave = Omit<UserPoint, 'updateMillis'>;
 
@@ -28,11 +28,30 @@ export class UserPointModel {
   }
 
   public use(point: number) {
+    this.validatePoint(point);
+
     if (this._point - point < 0)
-      throw new CannotUsePoint(
+      throw new CannotUsePointError(
         `point cannot be negative. currentPoint=${this._point} & point=${point}`,
       );
     this._point = this._point - point;
+  }
+
+  public charge(point: number) {
+    this.validatePoint(point);
+
+    if (this._point - point < 0)
+      throw new CannotUsePointError(
+        `point cannot be negative. currentPoint=${this._point} & point=${point}`,
+      );
+    this._point = this._point + point;
+  }
+
+  public validatePoint(point: number) {
+    if (point < 0 || point > Number.MAX_SAFE_INTEGER)
+      throw new PointValidateError(
+        'point must be greater than or equal to 0 or less than Number.MAX_VALUE',
+      );
   }
 
   public toInfo(): UserPoint {
