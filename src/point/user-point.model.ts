@@ -1,7 +1,8 @@
-import { UserPoint } from './point.model';
+import { PointHistory, TransactionType, UserPoint } from './point.model';
 import { CannotUsePointError, PointValidateError } from './error';
 
-type UserPointForSave = Omit<UserPoint, 'updateMillis'>;
+type UserPointInsertType = Omit<UserPoint, 'updateMillis'>;
+type PointHistoryInsertType = Omit<PointHistory, 'id'>;
 
 export class UserPointModel {
   private _id: number;
@@ -20,14 +21,20 @@ export class UserPointModel {
     return userPointModel;
   }
 
-  public toSave(): UserPointForSave {
+  public toInsert(): UserPointInsertType {
     return {
       id: this._id,
       point: this._point,
     };
   }
 
-  public use(point: number) {
+  public use({
+    point,
+    updateMillis,
+  }: {
+    point: number;
+    updateMillis: number;
+  }): PointHistoryInsertType {
     this.validatePoint(point);
 
     if (this._point - point < 0)
@@ -35,9 +42,23 @@ export class UserPointModel {
         `point cannot be negative. currentPoint=${this._point} & point=${point}`,
       );
     this._point = this._point - point;
+    this._updateMillis = updateMillis;
+
+    return {
+      userId: this._id,
+      amount: point,
+      type: TransactionType.USE,
+      timeMillis: this._updateMillis,
+    };
   }
 
-  public charge(point: number) {
+  public charge({
+    point,
+    updateMillis,
+  }: {
+    point: number;
+    updateMillis: number;
+  }) {
     this.validatePoint(point);
 
     if (this._point - point < 0)
@@ -45,6 +66,14 @@ export class UserPointModel {
         `point cannot be negative. currentPoint=${this._point} & point=${point}`,
       );
     this._point = this._point + point;
+    this._updateMillis = updateMillis;
+
+    return {
+      userId: this._id,
+      amount: point,
+      type: TransactionType.CHARGE,
+      timeMillis: this._updateMillis,
+    };
   }
 
   public validatePoint(point: number) {
