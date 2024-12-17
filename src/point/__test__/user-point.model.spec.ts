@@ -25,7 +25,7 @@ describe('UserPointModel', () => {
     const minusPoint = -100;
 
     expect(() => {
-      userPointModel.validatePoint(minusPoint);
+      userPointModel.validateAmount(minusPoint);
     }).toThrow(PointValidateError);
   });
 
@@ -33,12 +33,12 @@ describe('UserPointModel', () => {
     const maxPoint = Number.MAX_SAFE_INTEGER + 1;
 
     expect(() => {
-      userPointModel.validatePoint(maxPoint);
+      userPointModel.validateAmount(maxPoint);
     }).toThrow(PointValidateError);
   });
 
   it('Point를 사용한다', () => {
-    userPointModel.use({ point: 50, updateMillis: 1005 });
+    userPointModel.use({ amount: 50, updateMillis: 1005 });
 
     const remainPoint = userPointModel.point;
 
@@ -47,12 +47,12 @@ describe('UserPointModel', () => {
 
   it('남은 Point보다 더 많은 Point를 사용한다', () => {
     expect(() => {
-      userPointModel.use({ point: 101, updateMillis: 1005 });
+      userPointModel.use({ amount: 101, updateMillis: 1005 });
     }).toThrow(CannotUsePointError);
   });
 
   it('Point를 충전한다.', () => {
-    userPointModel.charge({ point: 50, updateMillis: 1005 });
+    userPointModel.charge({ amount: 50, updateMillis: 1005 });
 
     const remainPoint = userPointModel.point;
 
@@ -60,7 +60,7 @@ describe('UserPointModel', () => {
   });
 
   it('포인트를 충전하면 updateMillis가 업데이트 된다', () => {
-    userPointModel.charge({ point: 50, updateMillis: 1005 });
+    userPointModel.charge({ amount: 50, updateMillis: 1005 });
 
     const updateMillis = userPointModel.updateMillis;
 
@@ -68,7 +68,7 @@ describe('UserPointModel', () => {
   });
 
   it('포인트를 사용하면 updateMillis가 업데이트 된다', () => {
-    userPointModel.use({ point: 50, updateMillis: 1005 });
+    userPointModel.use({ amount: 50, updateMillis: 1005 });
 
     const updateMillis = userPointModel.updateMillis;
 

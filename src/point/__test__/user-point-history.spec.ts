@@ -1,5 +1,6 @@
 import { UserPointModel } from '../user-point.model';
 import { TransactionType } from '../point.model';
+import { PointHistoryModel } from '../point-history.model';
 
 describe('UserPointModel', () => {
   let userPointModel: UserPointModel;
@@ -16,16 +17,18 @@ describe('UserPointModel', () => {
     const updateMillis = 1005;
 
     const pointHistory = userPointModel.use({
-      point: 50,
+      amount: 50,
       updateMillis,
     });
 
-    expect(pointHistory).toEqual({
-      userId: 1,
-      type: TransactionType.USE,
-      amount: 50,
-      timeMillis: updateMillis,
-    });
+    expect(pointHistory).toEqual(
+      PointHistoryModel.createHistory({
+        userId: 1,
+        type: TransactionType.USE,
+        amount: 50,
+        timeMillis: updateMillis,
+      }),
+    );
     expect(userPointModel.toInfo()).toEqual({
       id: 1,
       point: 50,
@@ -37,16 +40,18 @@ describe('UserPointModel', () => {
     const updateMillis = 1005;
 
     const pointHistory = userPointModel.charge({
-      point: 50,
+      amount: 50,
       updateMillis,
     });
 
-    expect(pointHistory).toEqual({
-      userId: 1,
-      type: TransactionType.CHARGE,
-      amount: 50,
-      timeMillis: updateMillis,
-    });
+    expect(pointHistory).toEqual(
+      PointHistoryModel.createHistory({
+        userId: 1,
+        type: TransactionType.CHARGE,
+        amount: 50,
+        timeMillis: updateMillis,
+      }),
+    );
     expect(userPointModel.toInfo()).toEqual({
       id: 1,
       point: 150,

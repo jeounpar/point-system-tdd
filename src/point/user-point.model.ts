@@ -1,8 +1,8 @@
-import { PointHistory, TransactionType, UserPoint } from './point.model';
+import { TransactionType, UserPoint } from './point.model';
 import { CannotUsePointError, PointValidateError } from './error';
+import { PointHistoryModel } from './point-history.model';
 
 type UserPointInsertType = Omit<UserPoint, 'updateMillis'>;
-type PointHistoryInsertType = Omit<PointHistory, 'id'>;
 
 export class UserPointModel {
   private _id: number;
@@ -29,55 +29,55 @@ export class UserPointModel {
   }
 
   public use({
-    point,
+    amount,
     updateMillis,
   }: {
-    point: number;
+    amount: number;
     updateMillis: number;
-  }): PointHistoryInsertType {
-    this.validatePoint(point);
+  }): PointHistoryModel {
+    this.validateAmount(amount);
 
-    if (this._point - point < 0)
+    if (this._point - amount < 0)
       throw new CannotUsePointError(
-        `point cannot be negative. currentPoint=${this._point} & point=${point}`,
+        `point cannot be negative. currentPoint=${this._point} & amount=${amount}`,
       );
-    this._point = this._point - point;
+    this._point = this._point - amount;
     this._updateMillis = updateMillis;
 
-    return {
+    return PointHistoryModel.createHistory({
       userId: this._id,
-      amount: point,
+      amount,
       type: TransactionType.USE,
-      timeMillis: this._updateMillis,
-    };
+      timeMillis: updateMillis,
+    });
   }
 
   public charge({
-    point,
+    amount,
     updateMillis,
   }: {
-    point: number;
+    amount: number;
     updateMillis: number;
-  }) {
-    this.validatePoint(point);
+  }): PointHistoryModel {
+    this.validateAmount(amount);
 
-    if (this._point - point < 0)
+    if (this._point - amount < 0)
       throw new CannotUsePointError(
-        `point cannot be negative. currentPoint=${this._point} & point=${point}`,
+        `point cannot be negative. currentPoint=${this._point} & point=${amount}`,
       );
-    this._point = this._point + point;
+    this._point = this._point + amount;
     this._updateMillis = updateMillis;
 
-    return {
+    return PointHistoryModel.createHistory({
       userId: this._id,
-      amount: point,
+      amount,
       type: TransactionType.CHARGE,
-      timeMillis: this._updateMillis,
-    };
+      timeMillis: updateMillis,
+    });
   }
 
-  public validatePoint(point: number) {
-    if (point < 0 || point > Number.MAX_SAFE_INTEGER)
+  public validateAmount(amount: number) {
+    if (amount < 0 || amount > Number.MAX_SAFE_INTEGER)
       throw new PointValidateError(
         'point must be greater than or equal to 0 or less than Number.MAX_VALUE',
       );
