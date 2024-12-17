@@ -11,23 +11,21 @@ export class UserPointRepository {
   }: {
     userId: number;
   }): Promise<UserPointModel> {
-    const rawUserHistory = await this._userpointTable.selectById(userId);
+    const rawUserPoint = await this._userpointTable.selectById(userId);
 
-    return UserPointModel.fromDB(rawUserHistory);
+    return UserPointModel.fromDB(rawUserPoint);
   }
 
   public async save({
-    userId,
-    amount,
+    model,
   }: {
-    userId: number;
-    amount: number;
+    model: UserPointModel;
   }): Promise<UserPointModel> {
-    const rawUserHistory = await this._userpointTable.insertOrUpdate(
-      userId,
-      amount,
+    const rawUserPoint = await this._userpointTable.insertOrUpdate(
+      model.id,
+      model.point,
     );
 
-    return UserPointModel.fromDB(rawUserHistory);
+    return UserPointModel.fromDB(rawUserPoint);
   }
 }

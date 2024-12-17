@@ -2,8 +2,6 @@ import { TransactionType, UserPoint } from './point.model';
 import { CannotUsePointError, PointValidateError } from './error';
 import { PointHistoryModel } from './point-history.model';
 
-type UserPointInsertType = Omit<UserPoint, 'updateMillis'>;
-
 export class UserPointModel {
   private _id: number;
   private _point: number;
@@ -21,10 +19,10 @@ export class UserPointModel {
     return userPointModel;
   }
 
-  public toInsert(): UserPointInsertType {
+  public toSave() {
     return {
       id: this._id,
-      point: this._point,
+      amount: this._point,
     };
   }
 
@@ -61,10 +59,6 @@ export class UserPointModel {
   }): PointHistoryModel {
     this.validateAmount(amount);
 
-    if (this._point - amount < 0)
-      throw new CannotUsePointError(
-        `point cannot be negative. currentPoint=${this._point} & point=${amount}`,
-      );
     this._point = this._point + amount;
     this._updateMillis = updateMillis;
 

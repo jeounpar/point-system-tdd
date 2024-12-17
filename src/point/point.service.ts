@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PointHistoryTable } from '../database/pointhistory.table';
 import { PointHistory, UserPoint } from './point.model';
 import { UserPointRepository } from './repository/user-point-repository';
+import { PointHistoryRepository } from './repository/point-history-repository';
 
 @Injectable()
 export class PointService {
   constructor(
-    private readonly _pointHistoryRepo: PointHistoryTable,
+    private readonly _pointHistoryRepo: PointHistoryRepository,
     private readonly _userPointRepo: UserPointRepository,
   ) {}
 
@@ -17,7 +17,7 @@ export class PointService {
   }): Promise<UserPoint> {
     const userHistory = await this._userPointRepo.findById({ userId });
 
-    return userHistory;
+    return userHistory.toInfo();
   }
 
   public async fetchPointHistory({
@@ -25,10 +25,9 @@ export class PointService {
   }: {
     userId: number;
   }): Promise<PointHistory[]> {
-    const pointHistories =
-      await this._pointHistoryRepo.selectAllByUserId(userId);
+    const pointHistories = await this._pointHistoryRepo.findById({ userId });
 
-    return pointHistories;
+    return pointHistories.map((history) => history.toInfo());
   }
 
   public async usePoint({
@@ -37,7 +36,37 @@ export class PointService {
   }: {
     userId: number;
     amount: number;
-  }): Promise<PointHistory[]> {
-    return;
+  }): Promise<UserPoint> {
+    const now = Date.now();
+    const userHistory = await this._userPointRepo.findById({ userId });
+
+    const pointHistory = userHistory.use({ amount, updateMillis: now });
+
+    await this._pointHistoryRepo.save({ model: pointHistory });
+    const savedUserPoint = await this._userPointRepo.save({
+      model: userHistory,
+    });
+
+    return savedUserPoint.toInfo();
+  }
+
+  public async chargePoint({
+    userId,
+    amount,
+  }: {
+    userId: number;
+    amount: number;
+  }): Promise<UserPoint> {
+    const now = Date.now();
+    const userHistory = await this._userPointRepo.findById({ userId });
+
+    const pointHistory = userHistory.charge({ amount, updateMillis: now });
+
+    await this._pointHistoryRepo.save({ model: pointHistory });
+    const savedUserPoint = await this._userPointRepo.save({
+      model: userHistory,
+    });
+
+    return savedUserPoint.toInfo();
   }
 }

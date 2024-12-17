@@ -42,6 +42,16 @@ export class PointHistoryModel {
     return model;
   }
 
+  public toInfo() {
+    return {
+      id: this._id,
+      userId: this._userId,
+      type: this._type,
+      amount: this._amount,
+      timeMillis: this._timeMillis,
+    };
+  }
+
   public get id(): number {
     return this._id;
   }
