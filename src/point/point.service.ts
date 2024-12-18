@@ -17,9 +17,9 @@ export class PointService {
   }: {
     userId: number;
   }): Promise<UserPoint> {
-    const userHistory = await this._userPointRepo.findById({ userId });
+    const userPoint = await this._userPointRepo.findById({ userId });
 
-    return userHistory.toInfo();
+    return userPoint.toInfo();
   }
 
   @SimpleLock
@@ -42,9 +42,9 @@ export class PointService {
     amount: number;
   }): Promise<UserPoint> {
     const now = Date.now();
-    const userHistory = await this._userPointRepo.findById({ userId });
+    const userPoint = await this._userPointRepo.findById({ userId });
 
-    const pointHistory = userHistory.transaction({
+    const pointHistory = userPoint.transaction({
       amount,
       updateMillis: now,
       type: TransactionType.USE,
@@ -52,7 +52,7 @@ export class PointService {
 
     await this._pointHistoryRepo.save({ model: pointHistory });
     const savedUserPoint = await this._userPointRepo.save({
-      model: userHistory,
+      model: userPoint,
     });
 
     return savedUserPoint.toInfo();
@@ -67,9 +67,9 @@ export class PointService {
     amount: number;
   }): Promise<UserPoint> {
     const now = Date.now();
-    const userHistory = await this._userPointRepo.findById({ userId });
+    const userPoint = await this._userPointRepo.findById({ userId });
 
-    const pointHistory = userHistory.transaction({
+    const pointHistory = userPoint.transaction({
       amount,
       updateMillis: now,
       type: TransactionType.CHARGE,
@@ -77,7 +77,7 @@ export class PointService {
 
     await this._pointHistoryRepo.save({ model: pointHistory });
     const savedUserPoint = await this._userPointRepo.save({
-      model: userHistory,
+      model: userPoint,
     });
 
     return savedUserPoint.toInfo();

@@ -21,10 +21,8 @@ export class UserPointRepository {
   }: {
     model: UserPointModel;
   }): Promise<UserPointModel> {
-    const rawUserPoint = await this._userpointTable.insertOrUpdate(
-      model.id,
-      model.point,
-    );
+    const { id, amount } = model.toSave();
+    const rawUserPoint = await this._userpointTable.insertOrUpdate(id, amount);
 
     return UserPointModel.fromDB(rawUserPoint);
   }

@@ -22,11 +22,12 @@ export class PointHistoryRepository {
   }: {
     model: PointHistoryModel;
   }): Promise<PointHistoryModel> {
+    const { userId, amount, type, timeMillis } = model.toSave();
     const rawPointHistory = await this._pointHistoryTable.insert(
-      model.userId,
-      model.amount,
-      model.type,
-      model.timeMillis,
+      userId,
+      amount,
+      type,
+      timeMillis,
     );
 
     return PointHistoryModel.fromDB(rawPointHistory);
