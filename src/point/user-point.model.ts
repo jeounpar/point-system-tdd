@@ -26,6 +26,21 @@ export class UserPointModel {
     };
   }
 
+  public transaction({
+    amount,
+    updateMillis,
+    type,
+  }: {
+    amount: number;
+    updateMillis: number;
+    type: TransactionType;
+  }): PointHistoryModel {
+    this.validateAmount(amount);
+
+    if (type === TransactionType.USE) return this.use({ amount, updateMillis });
+    return this.charge({ amount, updateMillis });
+  }
+
   public use({
     amount,
     updateMillis,
@@ -33,8 +48,6 @@ export class UserPointModel {
     amount: number;
     updateMillis: number;
   }): PointHistoryModel {
-    this.validateAmount(amount);
-
     if (this._point - amount < 0)
       throw new CannotUsePointError(
         `point cannot be negative. currentPoint=${this._point} & amount=${amount}`,
@@ -57,8 +70,6 @@ export class UserPointModel {
     amount: number;
     updateMillis: number;
   }): PointHistoryModel {
-    this.validateAmount(amount);
-
     this._point = this._point + amount;
     this._updateMillis = updateMillis;
 

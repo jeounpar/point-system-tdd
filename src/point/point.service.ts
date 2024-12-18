@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PointHistory, UserPoint } from './point.model';
+import { PointHistory, TransactionType, UserPoint } from './point.model';
 import { UserPointRepository } from './repository/user-point-repository';
 import { PointHistoryRepository } from './repository/point-history-repository';
 import { SimpleLock } from '../util/simple-lock';
@@ -44,7 +44,11 @@ export class PointService {
     const now = Date.now();
     const userHistory = await this._userPointRepo.findById({ userId });
 
-    const pointHistory = userHistory.use({ amount, updateMillis: now });
+    const pointHistory = userHistory.transaction({
+      amount,
+      updateMillis: now,
+      type: TransactionType.USE,
+    });
 
     await this._pointHistoryRepo.save({ model: pointHistory });
     const savedUserPoint = await this._userPointRepo.save({
@@ -65,7 +69,11 @@ export class PointService {
     const now = Date.now();
     const userHistory = await this._userPointRepo.findById({ userId });
 
-    const pointHistory = userHistory.charge({ amount, updateMillis: now });
+    const pointHistory = userHistory.transaction({
+      amount,
+      updateMillis: now,
+      type: TransactionType.CHARGE,
+    });
 
     await this._pointHistoryRepo.save({ model: pointHistory });
     const savedUserPoint = await this._userPointRepo.save({

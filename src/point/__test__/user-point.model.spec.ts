@@ -1,5 +1,6 @@
 import { UserPointModel } from '../user-point.model';
 import { CannotUsePointError, PointValidateError } from '../error';
+import { TransactionType } from '../point.model';
 
 describe('UserPointModel', () => {
   let userPointModel: UserPointModel;
@@ -67,11 +68,27 @@ describe('UserPointModel', () => {
     expect(updateMillis).toEqual(1005);
   });
 
-  it('포인트를 사용하면 updateMillis가 업데이트 된다', () => {
-    userPointModel.use({ amount: 50, updateMillis: 1005 });
+  it('UserPointModel의 transaction 메서드를 이용해 포인트를 사용한다', () => {
+    userPointModel.transaction({
+      amount: 50,
+      updateMillis: 1005,
+      type: TransactionType.USE,
+    });
 
-    const updateMillis = userPointModel.updateMillis;
+    const remainPoint = userPointModel.point;
 
-    expect(updateMillis).toEqual(1005);
+    expect(remainPoint).toEqual(50);
+  });
+
+  it('UserPointModel의 transaction 메서드를 이용해 포인트를 충전한다', () => {
+    userPointModel.transaction({
+      amount: 50,
+      updateMillis: 1005,
+      type: TransactionType.CHARGE,
+    });
+
+    const remainPoint = userPointModel.point;
+
+    expect(remainPoint).toEqual(150);
   });
 });
