@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PointHistory, UserPoint } from './point.model';
 import { UserPointRepository } from './repository/user-point-repository';
 import { PointHistoryRepository } from './repository/point-history-repository';
+import { SimpleLock } from '../util/simple-lock';
 
 @Injectable()
 export class PointService {
@@ -10,6 +11,7 @@ export class PointService {
     private readonly _userPointRepo: UserPointRepository,
   ) {}
 
+  @SimpleLock
   public async fetchUserPoint({
     userId,
   }: {
@@ -20,6 +22,7 @@ export class PointService {
     return userHistory.toInfo();
   }
 
+  @SimpleLock
   public async fetchPointHistory({
     userId,
   }: {
@@ -30,6 +33,7 @@ export class PointService {
     return pointHistories.map((history) => history.toInfo());
   }
 
+  @SimpleLock
   public async usePoint({
     userId,
     amount,
@@ -50,6 +54,7 @@ export class PointService {
     return savedUserPoint.toInfo();
   }
 
+  @SimpleLock
   public async chargePoint({
     userId,
     amount,
