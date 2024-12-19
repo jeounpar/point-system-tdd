@@ -7,16 +7,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { PointHistory, UserPoint } from './point.model';
-import { UserPointTable } from 'src/database/userpoint.table';
-import { PointHistoryTable } from 'src/database/pointhistory.table';
 import { PointBody as PointDto } from './point.dto';
+import { PointService } from './point.service';
 
 @Controller('/point')
 export class PointController {
-  constructor(
-    private readonly userDb: UserPointTable,
-    private readonly historyDb: PointHistoryTable,
-  ) {}
+  constructor(private readonly _pointService: PointService) {}
 
   /**
    * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
@@ -24,7 +20,10 @@ export class PointController {
   @Get(':id')
   async point(@Param('id') id): Promise<UserPoint> {
     const userId = Number.parseInt(id);
-    return { id: userId, point: 0, updateMillis: Date.now() };
+
+    const userPoint = await this._pointService.fetchUserPoint({ userId });
+
+    return userPoint;
   }
 
   /**
@@ -33,7 +32,10 @@ export class PointController {
   @Get(':id/histories')
   async history(@Param('id') id): Promise<PointHistory[]> {
     const userId = Number.parseInt(id);
-    return [];
+
+    const histories = await this._pointService.fetchPointHistory({ userId });
+
+    return histories;
   }
 
   /**
@@ -46,7 +48,10 @@ export class PointController {
   ): Promise<UserPoint> {
     const userId = Number.parseInt(id);
     const amount = pointDto.amount;
-    return { id: userId, point: amount, updateMillis: Date.now() };
+
+    const userPoint = await this._pointService.chargePoint({ userId, amount });
+
+    return userPoint;
   }
 
   /**
@@ -59,6 +64,9 @@ export class PointController {
   ): Promise<UserPoint> {
     const userId = Number.parseInt(id);
     const amount = pointDto.amount;
-    return { id: userId, point: amount, updateMillis: Date.now() };
+
+    const userPoint = await this._pointService.usePoint({ userId, amount });
+
+    return userPoint;
   }
 }
