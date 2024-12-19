@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PointHistory, TransactionType, UserPoint } from './point.model';
+import { PointHistory, UserPoint } from './point.model';
 import { UserPointRepository } from './repository/user-point-repository';
 import { PointHistoryRepository } from './repository/point-history-repository';
-import { SimpleLock } from '../util/simple-lock';
+import { UserLock } from '../util/user-lock';
 
 @Injectable()
 export class PointService {
@@ -11,7 +11,6 @@ export class PointService {
     private readonly _userPointRepo: UserPointRepository,
   ) {}
 
-  @SimpleLock
   public async fetchUserPoint({
     userId,
   }: {
@@ -22,7 +21,6 @@ export class PointService {
     return userPoint.toInfo();
   }
 
-  @SimpleLock
   public async fetchPointHistory({
     userId,
   }: {
@@ -33,7 +31,7 @@ export class PointService {
     return pointHistories.map((history) => history.toInfo());
   }
 
-  @SimpleLock
+  @UserLock
   public async usePoint({
     userId,
     amount,
@@ -44,10 +42,9 @@ export class PointService {
     const now = Date.now();
     const userPoint = await this._userPointRepo.findById({ userId });
 
-    const pointHistory = userPoint.transaction({
+    const pointHistory = userPoint.use({
       amount,
       updateMillis: now,
-      type: TransactionType.USE,
     });
 
     await this._pointHistoryRepo.save({ model: pointHistory });
@@ -58,7 +55,7 @@ export class PointService {
     return savedUserPoint.toInfo();
   }
 
-  @SimpleLock
+  @UserLock
   public async chargePoint({
     userId,
     amount,
@@ -69,10 +66,9 @@ export class PointService {
     const now = Date.now();
     const userPoint = await this._userPointRepo.findById({ userId });
 
-    const pointHistory = userPoint.transaction({
+    const pointHistory = userPoint.charge({
       amount,
       updateMillis: now,
-      type: TransactionType.CHARGE,
     });
 
     await this._pointHistoryRepo.save({ model: pointHistory });

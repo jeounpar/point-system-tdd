@@ -67,28 +67,4 @@ describe('UserPointModel', () => {
 
     expect(updateMillis).toEqual(1005);
   });
-
-  it('UserPointModel의 transaction 메서드를 이용해 포인트를 사용한다', () => {
-    userPointModel.transaction({
-      amount: 50,
-      updateMillis: 1005,
-      type: TransactionType.USE,
-    });
-
-    const remainPoint = userPointModel.point;
-
-    expect(remainPoint).toEqual(50);
-  });
-
-  it('UserPointModel의 transaction 메서드를 이용해 포인트를 충전한다', () => {
-    userPointModel.transaction({
-      amount: 50,
-      updateMillis: 1005,
-      type: TransactionType.CHARGE,
-    });
-
-    const remainPoint = userPointModel.point;
-
-    expect(remainPoint).toEqual(150);
-  });
 });

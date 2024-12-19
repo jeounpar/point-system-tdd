@@ -26,21 +26,6 @@ export class UserPointModel {
     };
   }
 
-  public transaction({
-    amount,
-    updateMillis,
-    type,
-  }: {
-    amount: number;
-    updateMillis: number;
-    type: TransactionType;
-  }): PointHistoryModel {
-    this.validateAmount(amount);
-
-    if (type === TransactionType.USE) return this.use({ amount, updateMillis });
-    return this.charge({ amount, updateMillis });
-  }
-
   public use({
     amount,
     updateMillis,
