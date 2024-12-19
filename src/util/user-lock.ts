@@ -1,7 +1,7 @@
-type SharedLockType = 'LOCK' | 'EMPTY';
+type LockState = 'LOCK' | 'EMPTY';
 
 interface LockManager {
-  lockState: SharedLockType;
+  lockState: LockState;
   taskQueue: (() => void)[];
 }
 

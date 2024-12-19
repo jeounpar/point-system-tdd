@@ -28,7 +28,7 @@ describe('PointService', () => {
     expect(remainPoint).toEqual(200);
   });
 
-  it('3명의 유저에게 500포인트를 충전하고 100포인트를 사용하는 6개의 요청을 동시에 처리한다.', async () => {
+  it('3명의 유저에게 각각 500포인트를 충전하고 100포인트를 사용하는 6개의 요청(총 18개)을 동시에 처리한다.', async () => {
     const userA: number = 1;
     const userB: number = 2;
     const userC: number = 3;
